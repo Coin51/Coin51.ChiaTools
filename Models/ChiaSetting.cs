@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Coin51_chia.Common;
+using Plaisted.PowershellHelper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Coin51_chia.Entity
+namespace Coin51_chia.Models
 {
     public class ChiaSetting
     {
@@ -74,5 +76,34 @@ namespace Coin51_chia.Entity
             return new ChiaSetting() { poltConfig = new List<PoltConfig>() };
         }
 
+
+        /// <summary>
+        /// 命令获取当前系统的公钥信息
+        /// </summary>
+        public void GatPublicKeys()
+        {
+            if (string.IsNullOrWhiteSpace(poolPublicKey) || string.IsNullOrWhiteSpace(farmerPublicKey))
+            {
+                using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.RecursiveAdmin; }))
+                {
+                    helper.AddInputObject("resultData", new { result = "" });
+                    helper.AddCommand($"$resultData.result = {setupPath} keys show | Out-String");
+                    helper.AddOutputObject("resultData");
+
+                    var result = Task.Run(() => helper.RunAsync(new System.Threading.CancellationToken()));
+                    var _ret = result.Result;
+                    var scriptOutput = helper.Output["resultData"].ToObject<dynamic>();
+                    string _retStr = scriptOutput.result;
+                    var keys = _retStr?.Split(System.Environment.NewLine.ToCharArray())
+                        .ToList()?
+                        .Where(w1 => !string.IsNullOrEmpty(w1))?
+                        .ToDictionary(key => key?.Split(':')?.FirstOrDefault()?.Trim(), value => value?.Split(':')?.LastOrDefault()?.Trim());
+
+                    poolPublicKey = keys?.FirstOrDefault(f1 => f1.Key.ToLower().Contains("pool") && f1.Key.ToLower().Contains("public")).Value;
+                    farmerPublicKey = keys?.FirstOrDefault(f1 => f1.Key.ToLower().Contains("farmer") && f1.Key.ToLower().Contains("public")).Value;
+                    helper.WaitOnCleanup();
+                }
+            }
+        }
     }
 }

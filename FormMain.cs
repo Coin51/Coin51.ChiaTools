@@ -1,4 +1,4 @@
-﻿using Coin51_chia.Entity;
+﻿using Coin51_chia.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -166,16 +166,19 @@ namespace Coin51_chia
         /// <param name="e"></param>
         private void tsm_edit_Click(object sender, EventArgs e)
         {
-            var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
-            this.txt_temp.Text = _selrctConfig.poltConfig.tempPath;
-            this.txt_polt.Text = _selrctConfig.poltConfig.finalPath;
-            this.txt_memory.Text = _selrctConfig.poltConfig.memorySize.ToString();
-            this.txt_thread.Text = _selrctConfig.poltConfig.threadNumber.ToString();
-            this.txt_k.Text = _selrctConfig.poltConfig.stripeSize.ToString();
-            this.txt_buckets.Text = _selrctConfig.poltConfig.bucketsNumber.ToString();
-            this.cb_isnobyte.Checked = _selrctConfig.poltConfig.isBitfieldPlotting;
-            this.cb_keepWorking.Checked = _selrctConfig.poltConfig.isKeepWorking;
-            this.but_save.Tag = _selrctConfig;
+            if (this.lv_tasks.SelectedItems.Count > 0)
+            {
+                var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
+                this.txt_temp.Text = _selrctConfig.poltConfig.tempPath;
+                this.txt_polt.Text = _selrctConfig.poltConfig.finalPath;
+                this.txt_memory.Text = _selrctConfig.poltConfig.memorySize.ToString();
+                this.txt_thread.Text = _selrctConfig.poltConfig.threadNumber.ToString();
+                this.txt_k.Text = _selrctConfig.poltConfig.stripeSize.ToString();
+                this.txt_buckets.Text = _selrctConfig.poltConfig.bucketsNumber.ToString();
+                this.cb_isnobyte.Checked = _selrctConfig.poltConfig.isBitfieldPlotting;
+                this.cb_keepWorking.Checked = _selrctConfig.poltConfig.isKeepWorking;
+                this.but_save.Tag = _selrctConfig;
+            }
         }
 
         /// <summary>
@@ -195,6 +198,10 @@ namespace Coin51_chia
                 string file = dialog.FileName;
                 this.txt_chiapath.Text = file;
                 chiaSetting.setupPath = file;
+                //尝试获取当前chia公钥信息
+                chiaSetting.GatPublicKeys();
+                this.txt_pf.Text = chiaSetting.farmerPublicKey;
+                this.txt_pp.Text = chiaSetting.poolPublicKey;
                 TasksReflash();
                 OnShow();
             }
@@ -252,8 +259,11 @@ namespace Coin51_chia
         /// <param name="e"></param>
         private void tsm_stop_Click(object sender, EventArgs e)
         {
-            var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
-            _selrctConfig?.Stop();
+            if (this.lv_tasks.SelectedItems.Count > 0)
+            {
+                var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
+                _selrctConfig?.Stop();
+            }
         }
 
         /// <summary>
@@ -263,9 +273,12 @@ namespace Coin51_chia
         /// <param name="e"></param>
         private void tsm_del_Click(object sender, EventArgs e)
         {
-            var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
-            chiaSetting.poltConfig.RemoveAll(r1 => r1.id == _selrctConfig.poltConfig.id);
-            ChiaPoltTaskFactory.ChinPoltTasks.Remove(_selrctConfig);
+            if (this.lv_tasks.SelectedItems.Count > 0)
+            {
+                var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
+                chiaSetting.poltConfig.RemoveAll(r1 => r1.id == _selrctConfig.poltConfig.id);
+                ChiaPoltTaskFactory.ChinPoltTasks.Remove(_selrctConfig);
+            }
         }
 
         /// <summary>
@@ -275,8 +288,11 @@ namespace Coin51_chia
         /// <param name="e"></param>
         private void tsm_start_Click(object sender, EventArgs e)
         {
-            var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
-            Task.Factory.StartNew(() => _selrctConfig.Start(new System.Threading.CancellationTokenSource()));
+            if (this.lv_tasks.SelectedItems.Count > 0)
+            {
+                var _selrctConfig = (ChinPoltTask)this.lv_tasks.SelectedItems[0].Tag;
+                Task.Factory.StartNew(() => _selrctConfig?.Start(new System.Threading.CancellationTokenSource()));
+            }
         }
 
     }

@@ -49,6 +49,7 @@
             this.txt_temp = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cms_tasks = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsm_start = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_edit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_stop = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_del = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,10 +74,11 @@
             this.ch_buckets = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ch_nobyte = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ch_keep = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tsm_start = new System.Windows.Forms.ToolStripMenuItem();
+            this.TasksBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox2.SuspendLayout();
             this.cms_tasks.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TasksBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -108,6 +110,8 @@
             // cb_keepWorking
             // 
             this.cb_keepWorking.AutoSize = true;
+            this.cb_keepWorking.Checked = true;
+            this.cb_keepWorking.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cb_keepWorking.Location = new System.Drawing.Point(190, 123);
             this.cb_keepWorking.Name = "cb_keepWorking";
             this.cb_keepWorking.Size = new System.Drawing.Size(72, 16);
@@ -192,7 +196,7 @@
             this.txt_memory.Name = "txt_memory";
             this.txt_memory.Size = new System.Drawing.Size(75, 21);
             this.txt_memory.TabIndex = 12;
-            this.txt_memory.Text = "4086";
+            this.txt_memory.Text = "4096";
             // 
             // label8
             // 
@@ -265,26 +269,33 @@
             this.tsm_stop,
             this.tsm_del});
             this.cms_tasks.Name = "cms_tasks";
-            this.cms_tasks.Size = new System.Drawing.Size(153, 114);
+            this.cms_tasks.Size = new System.Drawing.Size(101, 92);
+            // 
+            // tsm_start
+            // 
+            this.tsm_start.Name = "tsm_start";
+            this.tsm_start.Size = new System.Drawing.Size(100, 22);
+            this.tsm_start.Text = "开始";
+            this.tsm_start.Click += new System.EventHandler(this.tsm_start_Click);
             // 
             // tsm_edit
             // 
             this.tsm_edit.Name = "tsm_edit";
-            this.tsm_edit.Size = new System.Drawing.Size(152, 22);
+            this.tsm_edit.Size = new System.Drawing.Size(100, 22);
             this.tsm_edit.Text = "修改";
             this.tsm_edit.Click += new System.EventHandler(this.tsm_edit_Click);
             // 
             // tsm_stop
             // 
             this.tsm_stop.Name = "tsm_stop";
-            this.tsm_stop.Size = new System.Drawing.Size(152, 22);
+            this.tsm_stop.Size = new System.Drawing.Size(100, 22);
             this.tsm_stop.Text = "停止";
             this.tsm_stop.Click += new System.EventHandler(this.tsm_stop_Click);
             // 
             // tsm_del
             // 
             this.tsm_del.Name = "tsm_del";
-            this.tsm_del.Size = new System.Drawing.Size(152, 22);
+            this.tsm_del.Size = new System.Drawing.Size(100, 22);
             this.tsm_del.Text = "删除";
             this.tsm_del.Click += new System.EventHandler(this.tsm_del_Click);
             // 
@@ -443,13 +454,6 @@
             this.ch_keep.Text = "连续";
             this.ch_keep.Width = 40;
             // 
-            // tsm_start
-            // 
-            this.tsm_start.Name = "tsm_start";
-            this.tsm_start.Size = new System.Drawing.Size(152, 22);
-            this.tsm_start.Text = "开始";
-            this.tsm_start.Click += new System.EventHandler(this.tsm_start_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -474,6 +478,7 @@
             this.cms_tasks.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TasksBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -524,6 +529,7 @@
         private System.Windows.Forms.Button but_chiaPath;
         private System.Windows.Forms.Button but_access;
         private System.Windows.Forms.ToolStripMenuItem tsm_start;
+        private System.Windows.Forms.BindingSource TasksBindingSource;
     }
 }
 
