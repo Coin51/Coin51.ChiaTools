@@ -99,14 +99,14 @@ namespace Coin51_chia.Models
         {
             try
             {
-                var source = new System.Threading.CancellationTokenSource();
-                using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.RecursiveAdmin; }))
-                {
-                    helper.AddCommand("Get-Process -Name chia | Stop-Process");
-                    var task = Task.Run(() => helper.RunAsync(source.Token));
-                    task.Wait();
-                    helper.WaitOnCleanup();
-                }
+                //var source = new System.Threading.CancellationTokenSource();
+                //using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.RecursiveAdmin; }))
+                //{
+                //    helper.AddCommand("Get-Process -Name chia | Stop-Process");
+                //    var task = Task.Run(() => helper.RunAsync(source.Token));
+                //    task.Wait();
+                //    helper.WaitOnCleanup();
+                //}
             }
             catch(Exception err)
             {
@@ -159,6 +159,7 @@ namespace Coin51_chia.Models
                 {
                     _needSize+= kSizeDictionary.Where(w1 => w1.Item1 == f1.poltConfig.stripeSize).FirstOrDefault().Item2;
                 });
+            LogerHelper.logger.Info($"任务编号{task.id}当前系统存储空间{_freeSpace}GB,需要空间{_needSize}GB。");
             return _freeSpace > _needSize;
         }
 
