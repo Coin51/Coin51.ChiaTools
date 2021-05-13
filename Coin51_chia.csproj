@@ -176,10 +176,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ProcessExpression.cs" />
     <Compile Include="Common\ListViewEx.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Common\Loger.cs" />
+    <Compile Include="Common\ProcessExecutor.cs" />
     <Compile Include="Models\ChiaPoltTaskFactory.cs" />
     <Compile Include="Models\ChiaSetting.cs" />
     <Compile Include="Models\ChinPoltTask.cs" />

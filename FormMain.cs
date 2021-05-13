@@ -25,7 +25,6 @@ namespace Coin51_chia
         public FormMain()
         {
             InitializeComponent();
-            chiaSetting = ChiaSetting.LoadConfig();
         }
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace Coin51_chia
         private void FormMain_Load(object sender, EventArgs e)
         {
 
-            chiaSetting = ChiaSetting.LoadConfig();
+            chiaSetting = ChiaSetting.LoadConfig() ?? new ChiaSetting() { poltConfig = new List<PoltConfig>() };
             ChiaPoltTaskFactory.StopChiaThread();
             chiaSetting?.poltConfig.ForEach(f1 =>
             {

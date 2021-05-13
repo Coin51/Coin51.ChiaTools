@@ -73,7 +73,7 @@ namespace Coin51_chia.Models
         /// 开始执行处理
         /// </summary>
         /// <param name="setting"></param>
-        public async Task Start(CancellationTokenSource _source)
+        public async Task Start11(CancellationTokenSource _source)
         {
             if (BeforeTaskStart.Invoke(this))
             {
@@ -87,7 +87,21 @@ namespace Coin51_chia.Models
                 {
                     poltCommend = poltCommend + " --override-k";
                 }
-                using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.RecursiveAdmin; }))
+
+
+                string processPath = @"path\to\process";
+                string[] arguments = new[] { "--the-answer", "42" };
+                var executor = new ProcessExecutor(processPath)
+                {
+                    WaitForExit = true,
+                    Args = arguments,
+                    StdoutHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); },
+                    StderrHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); }
+                };
+                executor.Mode = ProcessExecutor.RedirectionMode.UseHandlers;
+                executor.Execute(); // Now stdout and stderr of process is handled by provided handlers
+
+                using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.Recursive; }))
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
@@ -112,6 +126,88 @@ namespace Coin51_chia.Models
                     }
                     helper.WaitOnCleanup();
                 }
+                ChiaPoltTaskFactory.CallStatusChangeEvent(this);
+                if (poltConfig.isKeepWorking && !source.IsCancellationRequested)
+                {
+                    await Start11(source);
+                }
+                else
+                {
+                    this.status = TaskStatusEnum.Stop;
+                    ChiaPoltTaskFactory.CallStatusChangeEvent(this);
+                }
+            }
+            else
+            {
+                this.status = TaskStatusEnum.Stop;
+                ChiaPoltTaskFactory.CallStatusChangeEvent(this);
+            }
+        }
+
+        public async Task Start(CancellationTokenSource _source)
+        {
+            if (BeforeTaskStart.Invoke(this))
+            {
+                source = _source;
+                string processPath = chiaSetting.setupPath;
+                List<string> arguments = new List<string>()
+                {
+                    "plots",
+                    "create",
+                    "-k",poltConfig.stripeSize.ToString(),
+                    "-b",poltConfig.memorySize.ToString(),
+                    "-t",poltConfig.tempPath,
+                    "-d",poltConfig.finalPath,
+                    "-f",chiaSetting.farmerPublicKey,
+                    "-p",chiaSetting.poolPublicKey
+                };
+                if (poltConfig.isBitfieldPlotting)
+                {
+                    arguments.Add("-e");
+                }
+                if (poltConfig.stripeSize < 32)
+                {
+                    arguments.Add("--override-k");
+                }
+
+                var executor = new ProcessExecutor(processPath)
+                {
+                    Args = arguments.ToArray(),
+                    StdoutHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); },
+                    StderrHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); },
+                };
+                executor.Mode = ProcessExecutor.RedirectionMode.UseHandlers;
+                
+
+                #region 开始处理标记
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                this.currentStartTime = DateTime.Now;
+                this.status = TaskStatusEnum.Runing;
+                ChiaPoltTaskFactory.CallStatusChangeEvent(this);
+                LogerHelper.logger.Info($"任务编号【{this.id}】指令开始执行CHIA指令【{ string.Join(" ", arguments) }】！！");
+                #endregion
+
+                var process = executor.Execute();
+                try
+                {
+                    await process.WaitForExitAsync(source.Token);
+                    stopwatch.Stop();
+                    var useTime = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
+                    this.lastUseTime = useTime.TotalHours.ToString("0.00");
+                    this.completeNumber++;
+                    LogerHelper.logger.Info($"任务编号【{this.id}】指令执行完成！");
+                }
+                catch (Exception)
+                {
+                    stopwatch.Stop();
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+                    LogerHelper.logger.Error($"任务编号【{this.id}】指令异常终止退出码【{process.ExitCode}】");
+                }
+
                 ChiaPoltTaskFactory.CallStatusChangeEvent(this);
                 if (poltConfig.isKeepWorking && !source.IsCancellationRequested)
                 {
