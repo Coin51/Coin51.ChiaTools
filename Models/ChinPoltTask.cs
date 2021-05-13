@@ -73,7 +73,7 @@ namespace Coin51_chia.Models
         /// 开始执行处理
         /// </summary>
         /// <param name="setting"></param>
-        public async Task Start11(CancellationTokenSource _source)
+        public async Task StartByPS(CancellationTokenSource _source)
         {
             if (BeforeTaskStart.Invoke(this))
             {
@@ -87,20 +87,6 @@ namespace Coin51_chia.Models
                 {
                     poltCommend = poltCommend + " --override-k";
                 }
-
-
-                string processPath = @"path\to\process";
-                string[] arguments = new[] { "--the-answer", "42" };
-                var executor = new ProcessExecutor(processPath)
-                {
-                    WaitForExit = true,
-                    Args = arguments,
-                    StdoutHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); },
-                    StderrHandler = (sender, e) => { LogerHelper.logger.Info(e.Data); }
-                };
-                executor.Mode = ProcessExecutor.RedirectionMode.UseHandlers;
-                executor.Execute(); // Now stdout and stderr of process is handled by provided handlers
-
                 using (var helper = new PowershellHelper(LogerHelper.loggerFactory).WithOptions(o => { o.CleanupMethod = CleanupType.Recursive; }))
                 {
                     var stopwatch = new Stopwatch();
@@ -129,7 +115,7 @@ namespace Coin51_chia.Models
                 ChiaPoltTaskFactory.CallStatusChangeEvent(this);
                 if (poltConfig.isKeepWorking && !source.IsCancellationRequested)
                 {
-                    await Start11(source);
+                    await StartByPS(source);
                 }
                 else
                 {
